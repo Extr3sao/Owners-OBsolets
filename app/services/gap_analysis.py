@@ -17,6 +17,7 @@ CAPABILITY_KEYS = [
     "conector_oracle_en_ui",
     "inventario_excel_seguimiento",
     "sql_script_source",
+    "historial_eventos_seguimiento",
 ]
 
 
@@ -35,6 +36,7 @@ def project_capability_status() -> dict[str, bool]:
         "conector_oracle_en_ui": False,
         "inventario_excel_seguimiento": True,
         "sql_script_source": True,
+        "historial_eventos_seguimiento": True,
     }
 
 

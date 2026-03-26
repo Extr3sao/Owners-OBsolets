@@ -124,3 +124,5 @@ La UI incluye un bloque **“Cobertura funcional (implementado vs pendiente)”*
 - Carga opcional de inventario de seguimiento desde Excel (`sheet_name=followup`) para precargar estado/fase/responsable.
 - Exportación de informe ejecutivo también en HTML, lista para conversión a PDF con herramientas externas.
 - Comparativa entre ejecuciones con KPIs de cambios de estado, subidas/bajadas de riesgo y nuevos candidatos.
+- Seguimiento reforzado con prioridad, fecha objetivo, tags y resultado por esquema.
+- Historial de eventos operativo por esquema (comentarios, validaciones, cambios de fase, riesgos, dependencias resueltas).

@@ -7,13 +7,14 @@ import plotly.express as px
 import streamlit as st
 
 from app.config.settings import load_rules_config
-from app.domain.models import AnalysisRun, SchemaFollowUp
+from app.domain.models import AnalysisRun, FollowUpEvent, SchemaFollowUp
 from app.reporting.report_generator import (
     render_executive_report,
     render_executive_report_html,
     render_technical_report,
 )
 from app.repositories.followup_repository import FollowUpRepository
+from app.repositories.followup_event_repository import FollowUpEventRepository
 from app.repositories.run_repository import RunRepository, build_run_id, compare_runs, compare_runs_summary
 from app.rules.evaluator import RuleEngine
 from app.services.ingestion import (
@@ -26,6 +27,7 @@ from app.services.ingestion import (
 from app.services.gap_analysis import summarize_gaps
 from app.services.recommendations import build_recommendations
 from app.services.sql_parser import split_sql_statements
+from app.services.tracking import followup_kpis, suggest_operational_next_action
 
 st.set_page_config(page_title="Owners Obsolets", layout="wide")
 st.title("Owners Obsolets - Análisis de esquemas Oracle")
@@ -34,6 +36,7 @@ rules_cfg = load_rules_config()
 engine = RuleEngine(rules_cfg)
 run_repo = RunRepository()
 follow_repo = FollowUpRepository()
+event_repo = FollowUpEventRepository()
 
 source = st.sidebar.selectbox("Fuente de datos", ["Mocks", "Excel", "CSV", "Multi-export", "Script SQL"])
 
@@ -180,17 +183,58 @@ if inventory_file:
         existing[inv.schema_name] = inv
     st.sidebar.success("Inventario cargado en seguimiento.")
 f_item = existing.get(selected, SchemaFollowUp(schema_name=selected))
+f_kpis = followup_kpis(list(existing.values()))
+fk1, fk2, fk3, fk4, fk5 = st.columns(5)
+fk1.metric("Items seguimiento", f_kpis["total"])
+fk2.metric("Con responsable", f_kpis["with_owner"])
+fk3.metric("Con fecha objetivo", f_kpis["with_due_date"])
+fk4.metric("Vencidos", f_kpis["overdue"])
+fk5.metric("Requieren backup", f_kpis["needs_backup"])
+
+default_action = suggest_operational_next_action(ev)
 with st.form("followup_form"):
     f_item.status = st.text_input("Estado", value=f_item.status)
     f_item.phase = st.text_input("Fase", value=f_item.phase)
+    f_item.priority = st.selectbox("Prioridad", ["Baja", "Media", "Alta", "Crítica"], index=["Baja", "Media", "Alta", "Crítica"].index(f_item.priority if f_item.priority in ["Baja", "Media", "Alta", "Crítica"] else "Media"))
     f_item.owner = st.text_input("Responsable", value=f_item.owner)
-    f_item.next_action = st.text_input("Próxima acción", value=f_item.next_action)
+    f_item.next_action = st.text_input("Próxima acción", value=f_item.next_action or default_action)
+    f_item.due_date = st.date_input("Fecha objetivo", value=f_item.due_date or datetime.now(timezone.utc).date())
+    f_item.tags = st.text_input("Tags", value=f_item.tags)
     f_item.observations = st.text_area("Observaciones", value=f_item.observations)
+    f_item.result = st.text_input("Resultado", value=f_item.result)
     submitted = st.form_submit_button("Guardar seguimiento")
 if submitted:
     existing[selected] = f_item
     follow_repo.save(list(existing.values()))
     st.success("Seguimiento guardado")
+
+st.markdown("#### Historial de eventos de seguimiento")
+with st.form("event_form"):
+    event_type = st.selectbox(
+        "Tipo de evento",
+        ["Comentario", "Validación funcional", "Cambio de fase", "Riesgo detectado", "Dependencia resuelta"],
+    )
+    actor = st.text_input("Actor", value=f_item.owner)
+    note = st.text_area("Detalle del evento")
+    add_event = st.form_submit_button("Registrar evento")
+if add_event and note.strip():
+    event_repo.add_event(
+        FollowUpEvent(
+            schema_name=selected,
+            event_ts=datetime.now(timezone.utc),
+            event_type=event_type,
+            actor=actor or "N/A",
+            note=note.strip(),
+        )
+    )
+    st.success("Evento registrado")
+
+events = event_repo.list_for_schema(selected)
+if events:
+    ev_df = pd.DataFrame([e.model_dump() for e in events]).sort_values("event_ts", ascending=False)
+    st.dataframe(ev_df, use_container_width=True)
+else:
+    st.caption("No hay eventos registrados para este esquema.")
 
 st.subheader("Comparativa de ejecuciones")
 runs = run_repo.list_runs()

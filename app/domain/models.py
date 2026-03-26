@@ -92,6 +92,17 @@ class SchemaFollowUp(BaseModel):
     needs_functional_validation: bool = True
     needs_rollback_plan: bool = True
     needs_formal_retirement: bool = True
+    priority: str = "Media"
+    due_date: date | None = None
+    tags: str = ""
+
+
+class FollowUpEvent(BaseModel):
+    schema_name: str
+    event_ts: datetime
+    event_type: str
+    actor: str
+    note: str
 
 
 class RecommendedAction(BaseModel):
