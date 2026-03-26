@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Informe Ejecutivo {{ run.run_id }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background: #f5f5f5; }
+  </style>
+</head>
+<body>
+  <h1>Informe Ejecutivo - {{ run.run_id }}</h1>
+  <p><strong>Fecha:</strong> {{ run.run_ts }}</p>
+  <p><strong>Entorno:</strong> {{ run.environment }}</p>
+  <p><strong>Esquemas:</strong> {{ run.schema_count }}</p>
+
+  <h2>Resumen por esquema</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Schema</th><th>Clasificación</th><th>Riesgo</th><th>Obsolescencia</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in run.evaluations %}
+      <tr>
+        <td>{{ e.schema_name }}</td>
+        <td>{{ e.classification.value }}</td>
+        <td>{{ e.risk_score }}</td>
+        <td>{{ e.obsolescence_score }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

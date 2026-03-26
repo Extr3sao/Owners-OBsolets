@@ -1,0 +1,12 @@
+# Informe Ejecutivo - {{ run.run_id }}
+
+- Fecha: {{ run.run_ts }}
+- Entorno: {{ run.environment }}
+- Esquemas: {{ run.schema_count }}
+- Fuente: {{ run.data_source }}
+- Versión reglas: {{ run.rules_version }}
+
+## Resumen
+{% for e in run.evaluations %}
+- **{{ e.schema_name }}**: {{ e.classification.value }} | riesgo={{ e.risk_score }} | obsolescencia={{ e.obsolescence_score }}
+{% endfor %}
