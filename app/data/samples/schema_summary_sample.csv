@@ -1,0 +1,4 @@
+schema_name,environment,batch,manager,application,size_gb,object_count,last_login_days_ago,account_status,active_jobs,apex_applications,external_dependencies,enabled_triggers,recent_activity
+LEGACY_BILLING,PRO,L001,Ana,Billing 9,124.2,1400,430,OPEN,0,0,2,1,False
+CRM_CORE,PRO,L001,Luis,CRM,52.3,920,15,OPEN,5,3,8,12,True
+ARCHIVE_2014,PRE,L009,Marta,Archive,8.9,120,730,LOCKED,0,0,0,0,False

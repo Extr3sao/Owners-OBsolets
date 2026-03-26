@@ -1,0 +1,20 @@
+# Informe Técnico - {{ ev.schema_name }}
+
+- Clasificación: {{ ev.classification.value }}
+- Severidad: {{ ev.severity.value }}
+- Score obsolescencia: {{ ev.obsolescence_score }}
+- Score riesgo: {{ ev.risk_score }}
+- Siguiente fase: {{ ev.next_phase }}
+
+## Justificación
+{{ ev.executive_summary }}
+
+## Reglas disparadas
+{% for r in ev.triggered_rules %}
+- {{ r }}
+{% endfor %}
+
+## Bloqueos
+{% for b in ev.blocking_signals %}
+- {{ b }}
+{% endfor %}

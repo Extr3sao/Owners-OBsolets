@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0",
+  "thresholds": {
+    "green_last_login_days": 365,
+    "yellow_last_login_days": 90,
+    "yellow_size_gb": 10
+  },
+  "weights": {
+    "obsolescence": {
+      "inactivity": 35,
+      "no_jobs": 15,
+      "no_apex": 15,
+      "no_external_dependencies": 20,
+      "account_locked_or_expired": 15
+    },
+    "risk": {
+      "recent_activity": 30,
+      "active_jobs": 20,
+      "apex_recent": 15,
+      "external_dependencies": 20,
+      "enabled_triggers": 15
+    }
+  },
+  "severities": {
+    "low_max": 24,
+    "medium_max": 49,
+    "high_max": 74
+  },
+  "phases": [
+    "Fase 1: Análisis inicial",
+    "Fase 2: Verificación de dependencias",
+    "Fase 3: Revisión de actividad",
+    "Fase 4: Limpieza previa",
+    "Fase 5: Eliminación planificada"
+  ]
+}
